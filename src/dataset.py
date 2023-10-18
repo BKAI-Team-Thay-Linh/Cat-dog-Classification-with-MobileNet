@@ -7,7 +7,7 @@ from torchvision import transforms as T
 from PIL import Image
 
 class DogCatDataset(Dataset):
-    def __init__(self, root_dir, type = 'train'):
+    def __init__(self, root_dir, type):
         self.root_dir = root_dir
         self.type = type
         self.transform = self._get_transforms()

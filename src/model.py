@@ -5,6 +5,9 @@ sys.path.append(os.getcwd())
 import torch 
 import torch.nn as nn
 from torchvision import models
+from src.statistic import RunningMean
+
+import pytorch_lightning as pl
 
 class CNN(nn.Module):
     def __init__(self):
@@ -49,6 +52,68 @@ class CNN(nn.Module):
             nn.ReLU(),
             nn.Dropout(0.2)
         )
+        
+class DogCatModel(pl.LightningModule):
+    def __init__(self, model, lr = 2e-4):
+        super().__init__()
+        if model == 'cnn':
+            self.model = CNN()
+    
+        self.train_loss = RunningMean()
+        self.val_loss   = RunningMean()
+        self.train_acc  = RunningMean()
+        self.val_acc    = RunningMean()
+        
+        self.loss = nn.CrossEntropyLoss()
+        self.lr = lr
+    
+    def forward(self, x):
+        return self.model(x)
+
+    def _cal_loss_and_acc(self, batch):
+        """
+            This method is used to calculate loss and accuracy for each batch.
+        """
+        x, y = batch
+        y_hat = self(x) # Forward pass
+        loss = self.loss(y_hat, y)
+        acc = (y_hat.argmax(dim=1) == y).float().mean() # 
+        return loss,acc
+    
+    def training_step(self, batch, batch_idx):
+        loss, acc = self._cal_loss_and_acc(batch)
+        self.train_loss.update(loss.item(), batch[0].shape[0]) # batch[0] here is the batch size and batch[1] is the label, so batch[0].shape[0] is the batch size
+        self.train_acc.update(acc.item(), batch[0].shape[0])
+        return loss
+    
+    def validation_step(self, batch, batch_idx):
+        loss,acc = self._cal_loss_and_acc(batch)
+        self.val_loss.update(loss.item(),batch[0].shape[0])
+        self.val_acc.update(acc.item(),batch[0].shape[0])
+        return loss
+    
+    def on_train_epoch_end(self):
+        self.log("train_loss",self.train_loss(),sync_dist=True)
+        self.log("train_acc",self.train_acc(),sync_dist=True)
+        
+        # Reset the metrics
+        self.train_loss.reset()
+        self.train_acc.reset()
+    
+    def on_validation_epoch_end(self):
+        self.log("val_loss",self.val_loss(),sync_dist=True)
+        self.log("val_acc",self.val_acc(),sync_dist=True)
+        
+        # Reset the metrics
+        self.val_loss.reset()
+        self.val_acc.reset()
+    
+    def test_step(self,batch,batch_idx):
+        loss, acc = self._cal_loss_and_acc(batch)
+        return loss
+    
+    def configure_optimizers(self):
+        return torch.optim.Adam(self.parameters(),lr=self.lr)
 
 if __name__=='__main__':
     cnn = CNN()

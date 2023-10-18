@@ -60,9 +60,10 @@ def main():
         generator=torch.Generator().manual_seed(args.seed)
     )
     
-    test_dataset = DogCatDataset(
-        root_dir=os.path.join(os.getcwd(),'data'),
-        type='test'
+    train_dataset, test_dataset = random_split(
+        dataset=train_dataset,
+        lengths=(0.8,0.2),
+        generator=torch.Generator().manual_seed(args.seed)
     )
     
     train_loader = DataLoader(

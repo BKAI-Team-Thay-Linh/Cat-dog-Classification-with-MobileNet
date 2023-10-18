@@ -1,0 +1,8 @@
+lightning
+torch
+torchvision
+torchaudio
+numpy
+pandas
+matplotlib
+wandb

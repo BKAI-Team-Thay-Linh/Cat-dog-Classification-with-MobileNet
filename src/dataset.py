@@ -20,7 +20,7 @@ class DogCatDataset(Dataset):
         
         img_path = os.path.join(self.root_dir, self.type, img_name)
         
-        image = Image.open(img_path)
+        image = Image.open(img_path, mode="r")
         
         image = self.transform(image)
         

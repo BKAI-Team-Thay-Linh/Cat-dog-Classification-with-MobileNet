@@ -50,7 +50,7 @@ def main():
     
     # DATALOADER 
     train_dataset = DogCatDataset(
-        root_dir=os.path.join(os.getcwd(),'data','train'),
+        root_dir=os.path.join(os.getcwd(),'data'),
         type='train'
     )
     
@@ -61,7 +61,7 @@ def main():
     )
     
     test_dataset = DogCatDataset(
-        root_dir=os.path.join(os.getcwd(),'data','test'),
+        root_dir=os.path.join(os.getcwd(),'data'),
         type='test'
     )
     

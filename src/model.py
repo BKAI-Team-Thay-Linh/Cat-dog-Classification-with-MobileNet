@@ -36,7 +36,6 @@ class CNN(nn.Module):
         
         # Fully connected layers
         x = x.view(x.size(0), -1)       # Flatten the output of conv layers to feed into FC layers. Here, x.size(0) is the batch size
-        x = x.unsqueeze(0)              # Add a dimension of size 1 at index 0
         x = self.fc1(x)                 # 512
         x = self.relu(x)                # 512
         x = self.dropout(x)             

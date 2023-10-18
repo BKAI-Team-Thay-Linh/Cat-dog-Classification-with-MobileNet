@@ -52,11 +52,23 @@ class CNN(nn.Module):
             nn.Dropout(0.2)
         )
         
+class MobileNetV2(nn.Module):
+    def __init__(self):
+        super(MobileNetV2, self).__init__()
+        
+        self.model = models.mobilenet_v2(pretrained=True)
+        self.model.classifier[1] = nn.Linear(1280, 2)
+        
+    def forward(self, x):
+        return self.model(x)
+
 class DogCatModel(pl.LightningModule):
     def __init__(self, model, lr = 2e-4):
         super().__init__()
         if model == 'cnn':
             self.model = CNN()
+        elif model == 'mobilenetv2':
+            self.model = MobileNetV2()
     
         self.train_loss = RunningMean()
         self.val_loss   = RunningMean()

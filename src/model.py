@@ -98,6 +98,16 @@ class Depthwise_Separable_Conv(nn.Module):
         x = self.pw(self.dw(input_image))
         return x
 
+class MobileNetV2(nn.Module):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        
+        self.model = models.mobilenet_v2(pretrained=False)
+    
+    def forward(self, x):
+        x = self.model(x)
+        return x
+
 class MobileNetV1(nn.Module):
     def __init__(self, in_channels, num_classes=1000):
         super(MobileNetV1, self).__init__()

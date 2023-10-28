@@ -151,6 +151,57 @@ class MobileNetV1(nn.Module):
         x = self.softmax(x)
         return x
 
+class VGG16(nn.Module):
+    def __init__(self, use_batchnorm=True):
+        super(VGG16, self).__init__()
+        self.use_batchnorm = use_batchnorm
+
+        self.cnn_seq = nn.Sequential(
+            self._make_conv_layer(3, 64, 3, 1, 1, self.use_batchnorm, False),
+            self._make_conv_layer(64, 64, 3, 1, 1, False, True),
+            self._make_conv_layer(64, 128, 3, 1, 1, self.use_batchnorm, False),
+            self._make_conv_layer(128, 128, 3, 1, 1, False, True),
+            self._make_conv_layer(128, 256, 3, 1, 1, self.use_batchnorm, False),
+            self._make_conv_layer(256, 256, 3, 1, 1, self.use_batchnorm, False),
+            self._make_conv_layer(256, 256, 3, 1, 1, False, True),
+            self._make_conv_layer(256, 512, 3, 1, 1, self.use_batchnorm, False),
+            self._make_conv_layer(512, 512, 3, 1, 1, self.use_batchnorm, False),
+            self._make_conv_layer(512, 512, 3, 1, 1, False, True),
+            self._make_conv_layer(512, 512, 3, 1, 1, self.use_batchnorm, False),
+            self._make_conv_layer(512, 512, 3, 1, 1, self.use_batchnorm, False),
+            self._make_conv_layer(512, 512, 3, 1, 1, False, True),
+        )
+
+        self.fc_seq = nn.Sequential(
+            self._make_fc_layer(512*7*7, 4096),
+            self._make_fc_layer(4096, 4096),
+            nn.Linear(4096, 10),
+            nn.Softmax(dim=1)
+        )
+
+    def forward(self, X):
+        x = self.cnn_seq(X)
+        x = x.view(x.size(0), -1)
+        x = self.fc_seq(x)
+
+        return x
+
+    def _make_conv_layer(self, in_channel, out_channel, kernel_size, padding, stride, use_batchnorm: bool, downsample: bool):
+        return nn.Sequential(
+            nn.Conv2d(in_channels=in_channel, out_channels=out_channel,
+                      kernel_size=kernel_size, padding=padding, stride=stride),
+            nn.ReLU(),
+            nn.BatchNorm2d(out_channel) if use_batchnorm else nn.Identity(),
+            nn.MaxPool2d(2, 2) if downsample else nn.Identity(),
+        )
+
+    def _make_fc_layer(self, in_channel, out_channel):
+        return nn.Sequential(
+            nn.Dropout(0.5),
+            nn.Linear(in_channel, out_channel),
+            nn.ReLU()
+        )
+
 class DogCatModel(pl.LightningModule):
     def __init__(self, model, lr = 2e-4):
         super().__init__()
@@ -160,6 +211,8 @@ class DogCatModel(pl.LightningModule):
             self.model = MobileNetV1(3,2)
         elif model == 'mobilenetv2':
             self.model = MobileNetV2()
+        elif model == 'vgg16':
+            self.model = VGG16()
     
         self.train_loss = RunningMean()
         self.val_loss   = RunningMean()

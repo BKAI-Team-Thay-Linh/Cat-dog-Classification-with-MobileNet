@@ -51,23 +51,103 @@ class CNN(nn.Module):
             nn.Dropout(0.2)
         )
         
-class MobileNetV2(nn.Module):
-    def __init__(self):
-        super(MobileNetV2, self).__init__()
+class Depthwise_Conv(nn.Module):
+    def __init__(self, in_channels, stride=1):
+        super(Depthwise_Conv, self).__init__()
+        self.conv = nn.Sequential(
+            nn.Conv2d(
+                in_channels   =   in_channels,
+                out_channels  =   in_channels, 
+                kernel_size   =   3,
+                stride        =   stride,
+                padding       =   1,
+                groups        =   in_channels # Conv on each channel separately, then stack the results
+            ) ,
+            nn.BatchNorm2d(in_channels),
+            nn.ReLU()
+        )
+    
+    def forward(self, input_image):
+        x = self.conv(input_image)
+        return x
+
+class Pointwise_Conv(nn.Module): 
+    def __init__(self, in_channels, out_channels):
+        super(Pointwise_Conv, self).__init__()
+        self.conv = nn.Sequential(
+            nn.Conv2d(
+                in_channels   =   in_channels,
+                out_channels  =   out_channels,
+                kernel_size   =   1,
+            ),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU()
+        )
+    
+    def forward(self, input_image):
+        x = self.conv(input_image)
+        return x
+
+class Depthwise_Separable_Conv(nn.Module):
+    def __init__(self, in_channels, out_channels, stride=1):
+        super(Depthwise_Separable_Conv, self).__init__()
+        self.dw = Depthwise_Conv(in_channels=in_channels, stride=stride)
+        self.pw = Pointwise_Conv(in_channels=in_channels, out_channels=out_channels)
+    
+    def forward(self, input_image):
+        x = self.pw(self.dw(input_image))
+        return x
+
+class MobileNetV1(nn.Module):
+    def __init__(self, in_channels, num_classes=1000):
+        super(MobileNetV1, self).__init__()
         
-        self.model = models.mobilenet_v2(pretrained=True)
-        self.model.classifier[1] = nn.Linear(1280, 2)
+        self.model = nn.Sequential(
+            nn.Conv2d(in_channels, 32, kernel_size=3, stride=2, padding=1), # Conv / s2
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            
+            Depthwise_Separable_Conv(32, 64, stride=1), # Conv dw / s1
+            Depthwise_Separable_Conv(64, 128, stride=2), # Conv dw / s2
+            Depthwise_Separable_Conv(128, 128, stride=1), # Conv dw / s1
+            Depthwise_Separable_Conv(128, 256, stride=2), # Conv dw / s2
+            Depthwise_Separable_Conv(256, 256, stride=1), # Conv dw / s1
+            Depthwise_Separable_Conv(256, 512, stride=2), # Conv dw / s2
+
+            # 5x Conv dw / s1
+            Depthwise_Separable_Conv(512, 512, stride=1),
+            Depthwise_Separable_Conv(512, 512, stride=1),
+            Depthwise_Separable_Conv(512, 512, stride=1),
+            Depthwise_Separable_Conv(512, 512, stride=1),
+            Depthwise_Separable_Conv(512, 512, stride=1),
+            
+            # 2x Conv dw / s2
+            Depthwise_Separable_Conv(512, 1024, stride=2),
+            Depthwise_Separable_Conv(1024, 1024, stride=2),
+            
+            # AvgPool
+            nn.AdaptiveAvgPool2d(1), # AvgPool / s1 
+        )
         
+        self.fc = nn.Linear(1024, num_classes) # FC / s1
+        self.softmax = nn.Softmax(dim=1) 
+    
     def forward(self, x):
-        return self.model(x)
+        x = self.model(x)
+        print(x.shape)
+        x = x.view(x.size(0), 1024)
+        print(x.shape)
+        x = self.fc(x)
+        x = self.softmax(x)
+        return x
 
 class DogCatModel(pl.LightningModule):
     def __init__(self, model, lr = 2e-4):
         super().__init__()
         if model == 'cnn':
             self.model = CNN()
-        elif model == 'mobilenetv2':
-            self.model = MobileNetV2()
+        elif model == 'mobilenetv1':
+            self.model = MobileNetV1(3,2)
     
         self.train_loss = RunningMean()
         self.val_loss   = RunningMean()

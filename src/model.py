@@ -158,6 +158,8 @@ class DogCatModel(pl.LightningModule):
             self.model = CNN()
         elif model == 'mobilenetv1':
             self.model = MobileNetV1(3,2)
+        elif model == 'mobilenetv2':
+            self.model = MobileNetV2()
     
         self.train_loss = RunningMean()
         self.val_loss   = RunningMean()

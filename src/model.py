@@ -191,6 +191,28 @@ class ResNet50(nn.Module):
         return x
 
 
+class ResNet101(nn.Module):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.model = models.resnet101(pretrained=False)
+
+    def forward(self, x):
+        x = self.model(x)
+        return x
+
+
+class VGG16(nn.Module):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.model = models.vgg16(pretrained=False)
+
+    def forward(self, x):
+        x = self.model(x)
+        return x
+
+
 class DogCatModel(pl.LightningModule):
     def __init__(self, model, lr=2e-4):
         super().__init__()
@@ -206,6 +228,10 @@ class DogCatModel(pl.LightningModule):
             self.model = ResNet18()
         elif model == 'resnet50':
             self.model = ResNet50()
+        elif model == 'resnet101':
+            self.model = ResNet101()
+        elif model == 'vgg16':
+            self.model = VGG16()
 
         self.train_loss = RunningMean()
         self.val_loss = RunningMean()

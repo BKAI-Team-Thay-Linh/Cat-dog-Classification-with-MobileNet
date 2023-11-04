@@ -169,6 +169,17 @@ class MobileNetV1(nn.Module):
         return x
 
 
+class ResNet18(nn.Module):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.model = models.resnet18(pretrained=False)
+
+    def forward(self, x):
+        x = self.model(x)
+        return x
+
+
 class DogCatModel(pl.LightningModule):
     def __init__(self, model, lr=2e-4):
         super().__init__()

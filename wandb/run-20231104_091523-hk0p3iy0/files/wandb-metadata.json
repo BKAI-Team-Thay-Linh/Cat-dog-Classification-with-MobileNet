@@ -1,0 +1,108 @@
+{
+    "os": "Linux-6.5.8-200.fc38.x86_64-x86_64-with-glibc2.37",
+    "python": "3.11.6",
+    "heartbeatAt": "2023-11-04T02:15:24.257167",
+    "startedAt": "2023-11-04T02:15:23.072956",
+    "docker": null,
+    "cuda": null,
+    "args": [
+        "-m",
+        "mobilenetv2",
+        "-bs",
+        "256",
+        "-w",
+        "-wk",
+        "8b9a21f3b6f5fbf21131e5a7c7d5bf22a2ad5f0c"
+    ],
+    "state": "running",
+    "program": "/home/hokage321xxx/Documents/GitHub/Cat-dog-Classification-with-MobileNet/train.py",
+    "codePathLocal": "train.py",
+    "codePath": "train.py",
+    "git": {
+        "remote": "https://github.com/BKAI-Team-Thay-Linh/Cat-dog-Classification-with-MobileNet.git",
+        "commit": "f40ba152f9a135963a20dfee8b148fd4ef73f694"
+    },
+    "email": "91663460+2uanDM@users.noreply.github.com",
+    "root": "/home/hokage321xxx/Documents/GitHub/Cat-dog-Classification-with-MobileNet",
+    "host": "fedora",
+    "username": "hokage321xxx",
+    "executable": "/bin/python",
+    "cpu_count": 6,
+    "cpu_count_logical": 12,
+    "cpu_freq": {
+        "current": 2775.10325,
+        "min": 400.0,
+        "max": 4056.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 4045.521,
+            "min": 400.0,
+            "max": 4056.0
+        },
+        {
+            "current": 4035.577,
+            "min": 400.0,
+            "max": 4056.0
+        },
+        {
+            "current": 4029.943,
+            "min": 400.0,
+            "max": 4056.0
+        },
+        {
+            "current": 4045.079,
+            "min": 400.0,
+            "max": 4056.0
+        },
+        {
+            "current": 4041.626,
+            "min": 400.0,
+            "max": 4056.0
+        },
+        {
+            "current": 4027.36,
+            "min": 400.0,
+            "max": 4056.0
+        },
+        {
+            "current": 400.0,
+            "min": 400.0,
+            "max": 4056.0
+        },
+        {
+            "current": 1631.177,
+            "min": 400.0,
+            "max": 4056.0
+        },
+        {
+            "current": 1410.311,
+            "min": 400.0,
+            "max": 4056.0
+        },
+        {
+            "current": 1796.006,
+            "min": 400.0,
+            "max": 4056.0
+        },
+        {
+            "current": 1515.286,
+            "min": 400.0,
+            "max": 4056.0
+        },
+        {
+            "current": 400.0,
+            "min": 400.0,
+            "max": 4056.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 96.65625,
+            "used": 20.463054656982422
+        }
+    },
+    "memory": {
+        "total": 14.44326400756836
+    }
+}

@@ -202,6 +202,10 @@ class DogCatModel(pl.LightningModule):
             self.model = MobileNetV2()
         elif model == 'mobilenetv3':
             self.model = MobileNetV3()
+        elif model == 'resnet18':
+            self.model = ResNet18()
+        elif model == 'resnet50':
+            self.model = ResNet50()
 
         self.train_loss = RunningMean()
         self.val_loss = RunningMean()

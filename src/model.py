@@ -180,6 +180,17 @@ class ResNet18(nn.Module):
         return x
 
 
+class ResNet50(nn.Module):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+        self.model = models.resnet50(pretrained=False)
+
+    def forward(self, x):
+        x = self.model(x)
+        return x
+
+
 class DogCatModel(pl.LightningModule):
     def __init__(self, model, lr=2e-4):
         super().__init__()
